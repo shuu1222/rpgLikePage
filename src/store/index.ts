@@ -6,6 +6,6 @@ import { items } from "./modules/index";
 Vue.use(Vuex);
 export default new Vuex.Store<RpgLikeWebRootState>({
   modules: {
-    items,
-  },
+    items
+  }
 });

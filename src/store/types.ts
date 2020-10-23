@@ -1,1 +1,1 @@
-export interface RpgLikeWebRootState {}
+export interface RpgLikeWebRootState {} // eslint-disable-line

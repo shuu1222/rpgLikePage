@@ -1,17 +1,21 @@
 <template>
   <v-container>
-    <div class="move-area-wrapper">
-      <div class="move-area-y" v-for="(item, index) in moveArea" :key="index">
-        <div
-          class="move-area-x"
-          v-for="(xItems, xIndex) in moveArea[index]"
-          :key="xIndex"
-        >
-          <img :src="imageSources(index, xIndex)" alt="" />
-          <!-- 座標テスト -->
-          <!-- {{moveArea[index][xIndex]}} -->
+    <div class="main-panel-box">
+      <app-item-area></app-item-area>
+      <div class="move-area-wrapper">
+        <div class="move-area-y" v-for="(item, index) in moveArea" :key="index">
+          <div
+            class="move-area-x"
+            v-for="(xItems, xIndex) in moveArea[index]"
+            :key="xIndex"
+          >
+            <img :src="imageSources(index, xIndex)" alt="" class="images" />
+            <!-- 座標テスト -->
+            <!-- {{moveArea[index][xIndex]}} -->
+
+          </div>
+          <br />
         </div>
-        <br />
       </div>
     </div>
     <AppMainDialog
@@ -24,19 +28,21 @@
 </template>
 <script lang="ts">
 import Vue from "vue";
-import AppMainDialog from "./mainDialog.vue";
+import AppMainDialog from "./MainMessage.vue";
+import AppItemArea from "./ItemArea.vue";
 
 export default Vue.extend({
   name: "HelloWorld",
   components: {
-    AppMainDialog
+    AppMainDialog,
+    AppItemArea
   },
   data: () => ({
     moveArea: [
       [0, 0, 3, 3, 0, 0, 0, 0, 3, 0, 0, 0, 3, 3, 3, 3, 0, 0, 0, 3, 0, 0, 0, 0, 0, 0],
       [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-      [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 0, 0, 0, 0, 0, 0],
-      [0, 3, 0, 0, 3, 0, 3, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 0, 0, 0, 0, 0, 0],
+      [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8, 0, 0, 0, 0, 0, 3, 0, 0, 0, 0, 0, 0],
+      [0, 3, 0, 0, 3, 0, 3, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 0, 0, 0, 0, 7, 0],
       [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 3, 3, 3, 3, 3, 3],
       [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
       [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
@@ -50,7 +56,7 @@ export default Vue.extend({
       [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
       [3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3],
     ], // 0=moveable, 1=player, 3=unable to enter
-    positionY: 14,
+    positionY: 11,
     positionX: 12,
     direction: "front1", //front,up,right,left
     moveAnimation: false,
@@ -58,6 +64,7 @@ export default Vue.extend({
     isTalking: false
   }),
   created() {
+    // キー押下イベントを取得する
     this.moveArea[this.positionY][this.positionX] = 1;
     const eventHandler = (e: KeyboardEvent) => {
       this.pressedKey(e);
@@ -68,17 +75,33 @@ export default Vue.extend({
     });
     this.resetRestriction();
   },
+  mounted() {
+    // アイテム一覧の初期値を設定する
+    const defaultItems = [
+      { name: "About This Siteの鍵", id: "1", count: 0 },
+      { name: "About Meの鍵", id: "2", count: 0 },
+      { name: "Contactの鍵", id: "3", count: 0 },
+      { name: "宝の巻物", id: "4", count: 0 }
+    ];
+    this.$store.dispatch("items/registerItemlist", defaultItems);
+  },
   computed: {
+    // dataのプレイヤーの向き対応した画像ファイルのキーワードを返す
     playerDirection(): string {
       return this.direction;
     }
   },
   methods: {
-    imageSources(index:number, xIndex:number) {
+    // 座標に応じたキャラクター画像を返す
+    imageSources(index: number, xIndex: number) {
       return this.moveArea[index][xIndex] === 1
         ? require(`../assets/images/${this.playerDirection}.png`)
         : this.moveArea[index][xIndex] === 6
         ? require(`../assets/images/king.png`)
+        : this.moveArea[index][xIndex] === 7
+        ? require(`../assets/images/maidLeft.png`)
+        : this.moveArea[index][xIndex] === 8
+        ? require(`../assets/images/sister.png`)
         : "";
     },
     // キーダウンイベントを感知した際の処理
@@ -92,7 +115,7 @@ export default Vue.extend({
         this.moveAnimation = !this.moveAnimation;
         this.pressedKeyUp();
         // 方向キーの↓が押下された際の処理
-      } else if (e.key === "ArrowDown" && this.positionY != 15) {
+      } else if (e.key === "ArrowDown" && this.positionY != 11) {
         this.moveAnimation
           ? (this.direction = "front2")
           : (this.direction = "front3");
@@ -187,7 +210,7 @@ export default Vue.extend({
   &-wrapper {
     background-size: 1050px auto;
     width: 1050px;
-    height: 615px;
+    height: 500px;
     position: relative;
     background-image: url("../assets/mapdata.png");
     text-align: center;
@@ -206,5 +229,12 @@ export default Vue.extend({
     height: 39px;
     z-index: 1;
   }
+}
+.main-panel {
+  &-box {
+    display: flex;
+  }
+}
+.images{
 }
 </style>
