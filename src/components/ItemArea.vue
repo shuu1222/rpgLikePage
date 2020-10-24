@@ -19,13 +19,13 @@ export default Vue.extend({
 
   data: () => ({
     textData: "",
-    textDataSecoundLine: "",
+    textDataSecoundLine: ""
   }),
   computed: {
     // VuexのStoreに保管されているアイテムリスト情報を取得する。
     getItems(): Array<{ name: string; id: string; count: number }> {
       return this.$store.getters["items/getItemList"];
-    },
+    }
   },
   methods: {
     // アイテムIDに対応するアイテムのアイコン情報を取得する
@@ -33,8 +33,8 @@ export default Vue.extend({
       return item.id != ""
         ? require(`../assets/images/item${item.id}.png`)
         : "";
-    },
-  },
+    }
+  }
 });
 </script>
 

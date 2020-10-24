@@ -61,7 +61,9 @@
       "ecmaVersion": 2020
     },
     "rules": {
-      "prettier/prettier": "error"
+      "prettier/prettier": "error",
+      "semi": ["error", "always"],
+      "comma-style": [2, "last"]
     },
     "overrides": [
       {

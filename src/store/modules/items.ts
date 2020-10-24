@@ -36,7 +36,6 @@ export const items: Module<RpgItemStoreState, RpgLikeWebRootState> = {
       payload: Array<{ name: string; id: string; count: number }>
     ): void {
       state.items = payload;
-      console.log(state.items);
     }
   },
   actions: {

@@ -11,19 +11,19 @@
           >
             <img :src="imageSources(index, xIndex)" alt="" class="images" />
             <!-- 座標テスト -->
-            <!-- {{moveArea[index][xIndex]}} -->
-
+            <!-- {{ moveArea[index][xIndex] }} -->
           </div>
           <br />
         </div>
       </div>
     </div>
-    <AppMainDialog
+    <app-main-dialog
       :positionY="positionY"
       :positionX="positionX"
+      @treasureAppears="treasureAppears()"
       @setMoveRestriction="setMoveRestriction()"
       @resetMoveRestriction="resetMoveRestriction()"
-    ></AppMainDialog>
+    ></app-main-dialog>
   </v-container>
 </template>
 <script lang="ts">
@@ -38,6 +38,7 @@ export default Vue.extend({
     AppItemArea
   },
   data: () => ({
+    /* eslint-disable */
     moveArea: [
       [0, 0, 3, 3, 0, 0, 0, 0, 3, 0, 0, 0, 3, 3, 3, 3, 0, 0, 0, 3, 0, 0, 0, 0, 0, 0],
       [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
@@ -56,6 +57,7 @@ export default Vue.extend({
       [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
       [3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3],
     ], // 0=moveable, 1=player, 3=unable to enter
+    /* eslint-disable */
     positionY: 11,
     positionX: 12,
     direction: "front1", //front,up,right,left
@@ -102,7 +104,10 @@ export default Vue.extend({
         ? require(`../assets/images/maidLeft.png`)
         : this.moveArea[index][xIndex] === 8
         ? require(`../assets/images/sister.png`)
+        : this.moveArea[index][xIndex] === 9 || this.moveArea[index][xIndex] === 10 || this.moveArea[index][xIndex] === 11
+        ? require(`../assets/images/treasure${this.moveArea[index][xIndex]}.png`)
         : "";
+
     },
     // キーダウンイベントを感知した際の処理
     pressedKey(e: KeyboardEvent): void {
@@ -200,6 +205,12 @@ export default Vue.extend({
     // 移動制限を解除する
     resetMoveRestriction(): void {
       this.isTalking = false;
+    },
+    // 宝箱を出現させる処理
+    treasureAppears():void{
+      this.moveArea[4].splice(11,　1,　9)
+      this.moveArea[4].splice(13,　1,　10)
+      this.moveArea[4].splice(15,　1,　11)
     }
   }
 });
@@ -222,12 +233,14 @@ export default Vue.extend({
     display: inline-block;
     width: 1050px;
     z-index: 1;
+    vertical-align: top;
   }
   &-x {
     display: inline-block;
     width: 40px;
     height: 39px;
     z-index: 1;
+    vertical-align: top;
   }
 }
 .main-panel {
@@ -236,5 +249,7 @@ export default Vue.extend({
   }
 }
 .images{
+  max-height: 39px;
+  vertical-align: top;
 }
 </style>

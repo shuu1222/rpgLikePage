@@ -3,7 +3,9 @@
     <div class="main-dialog">
       {{ textData }}
       <br />
-      {{ textDataSecoundLine }}
+      <div>
+        {{ textDataSecoundLine }}
+      </div>
     </div>
   </v-container>
 </template>
@@ -40,44 +42,50 @@ export default Vue.extend({
     // プレイヤーの位置情報を監視し、位置に対応したな処理を実行する
     positionInfo(value): void {
       console.log(value);
+      // 王様に初めて話しかけた場合
       if (value.y === 9 && value.x === 16 && !this.isAlreadyTalked.key) {
-        const standardKeys = [
-          { name: "`About This Site`の鍵", id: "1", count: 1 },
-          { name: "About Meの鍵", id: "2", count: 1 },
-          { name: "Contactの鍵", id: "3", count: 1 },
-          { name: "宝の巻物", id: "4", count: 0 }
-        ];
         this.kingGiveKeys();
-        this.$store.dispatch("items/registerItemlist", standardKeys);
+        // メイドさんに初めて話しかけた場合
       } else if (value.y === 3 && value.x === 23 && this.isAlreadyTalked.key) {
-        const standardKeys = [
-          { name: "About This Siteの鍵", id: "1", count: 1 },
-          { name: "About Meの鍵", id: "2", count: 1 },
-          { name: "Contactの鍵", id: "3", count: 1 },
-          { name: "宝の巻物", id: "4", count: 1 }
-        ];
         this.maidGiveKeys();
-        this.$store.dispatch("items/registerItemlist", standardKeys);
+        // シスターに初めて話しかけた場合
       } else if (
         value.y === 3 &&
         value.x === 13 &&
         this.isAlreadyTalkedMaid.key
       ) {
-        const standardKeys = [
-          { name: "About This Siteの鍵", id: "1", count: 1 },
-          { name: "About Meの鍵", id: "2", count: 1 },
-          { name: "Contactの鍵", id: "3", count: 1 },
-          { name: "宝の巻物", id: "4", count: 0 }
-        ];
         this.talkToSister();
-        console.log("talkedToSister");
-        this.$store.dispatch("items/registerItemlist", standardKeys);
+        // about this siteの遷移確認ダイアログを表示する
+      } else if (
+        value.y === 5 &&
+        value.x === 11 &&
+        this.isAlreadyTalkedSister
+      ) {
+        console.log("5/11");
+      } else if (
+        value.y === 5 &&
+        value.x === 13 &&
+        this.isAlreadyTalkedSister
+      ) {
+        console.log("5/13");
+      } else if (
+        value.y === 5 &&
+        value.x === 15 &&
+        this.isAlreadyTalkedSister
+      ) {
+        console.log("5/16");
       }
     }
   },
   methods: {
     // 宝箱の鍵を手に入れる
     kingGiveKeys(): void {
+      this.$store.dispatch("items/registerItemlist", [
+        { name: "`About This Site`の鍵", id: "1", count: 1 },
+        { name: "About Meの鍵", id: "2", count: 1 },
+        { name: "Contactの鍵", id: "3", count: 1 },
+        { name: "宝の巻物", id: "4", count: 0 }
+      ]);
       this.resetDialogOption();
       const getKey =
         "勇者よ、よく「まおう」を倒してくれた。其方に宝の鍵を授けよう。";
@@ -108,8 +116,14 @@ export default Vue.extend({
         }
       }, 50);
     },
-    // 宝箱の巻物を手に入れる
+    // 宝箱の巻物を手に入れる(メイドさんに話しかける)
     maidGiveKeys(): void {
+      this.$store.dispatch("items/registerItemlist", [
+        { name: "About This Siteの鍵", id: "1", count: 1 },
+        { name: "About Meの鍵", id: "2", count: 1 },
+        { name: "Contactの鍵", id: "3", count: 1 },
+        { name: "宝の巻物", id: "4", count: 1 }
+      ]);
       this.resetDialogOption();
       const getKey =
         "メイドさん「勇者から預かっていた秘密の巻物をお返しします。」";
@@ -125,7 +139,7 @@ export default Vue.extend({
         }
       }, 50);
     },
-    // 宝箱の巻物を手に入れた
+    // 宝箱の巻物を手に入れた（メイドさんから貰う）
     playerGotMaidKeys(): void {
       const gotKey = "ピアノの前にいるシスターに話しかけよう。";
       let count = 0;
@@ -138,11 +152,16 @@ export default Vue.extend({
         }
       }, 50);
     },
-        // シスターに話しかける
+    // シスターに話しかける
     talkToSister(): void {
+      this.$store.dispatch("items/registerItemlist", [
+        { name: "About This Siteの鍵", id: "1", count: 1 },
+        { name: "About Meの鍵", id: "2", count: 1 },
+        { name: "Contactの鍵", id: "3", count: 1 },
+        { name: "宝の巻物", id: "4", count: 0 }
+      ]);
       this.resetDialogOption();
-      const getKey =
-        "シスター「勇者よ、よくここまで頑張りましたね。」";
+      const getKey = "シスター「勇者よ、よくここまで頑張りましたね。」";
       let count = 0;
       this.isAlreadyTalkedSister.key = true;
       this.setMoveRestriction();
@@ -150,12 +169,12 @@ export default Vue.extend({
         count++;
         this.textData = getKey.substring(0, count);
         if (count === getKey.length) {
-          this.boxAppears()
+          this.boxAppears();
           clearInterval(interval);
         }
       }, 50);
     },
-        // 宝箱の巻物を手に入れた
+    // 宝箱が出現した（シスターが出してくれる）
     boxAppears(): void {
       const gotKey = "宝箱が出現した。";
       let count = 0;
@@ -164,6 +183,7 @@ export default Vue.extend({
         this.textDataSecoundLine = gotKey.substring(0, count);
         if (count === gotKey.length) {
           this.resetMoveRestriction();
+          this.$emit("treasureAppears");
           clearInterval(interval);
         }
       }, 50);
