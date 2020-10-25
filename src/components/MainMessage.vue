@@ -1,18 +1,24 @@
 <template>
-  <v-container class="pa-0">
+  <v-container class="pa-0 main-dialog-wrapper">
     <div class="main-dialog">
       {{ textData }}
       <br />
-      <div>
+      <div class="main-dialog-sub">
         {{ textDataSecoundLine }}
       </div>
     </div>
+    <app-select-button></app-select-button>
   </v-container>
 </template>
 <script lang="ts">
 import Vue from "vue";
+import SelectButton from "./DialogSelectButton.vue";
+
 export default Vue.extend({
   name: "MainDialog",
+  components: {
+    AppSelectButton: SelectButton
+  },
   props: {
     positionY: {
       type: Number,
@@ -30,7 +36,9 @@ export default Vue.extend({
     textDataSecoundLine: "",
     isAlreadyTalked: { key: false },
     isAlreadyTalkedMaid: { key: false },
-    isAlreadyTalkedSister: { key: false }
+    isAlreadyTalkedSister: { key: false },
+    whichTreasure: "",
+    selectButtonIsVisible: false
   }),
   computed: {
     // プレイヤーの位置情報をオブジェクトで返す
@@ -46,13 +54,19 @@ export default Vue.extend({
       if (value.y === 9 && value.x === 16 && !this.isAlreadyTalked.key) {
         this.kingGiveKeys();
         // メイドさんに初めて話しかけた場合
-      } else if (value.y === 3 && value.x === 23 && this.isAlreadyTalked.key) {
+      } else if (
+        value.y === 3 &&
+        value.x === 23 &&
+        this.isAlreadyTalked.key &&
+        !this.isAlreadyTalkedMaid.key
+      ) {
         this.maidGiveKeys();
         // シスターに初めて話しかけた場合
       } else if (
         value.y === 3 &&
         value.x === 13 &&
-        this.isAlreadyTalkedMaid.key
+        this.isAlreadyTalkedMaid.key &&
+        !this.isAlreadyTalkedSister.key
       ) {
         this.talkToSister();
         // about this siteの遷移確認ダイアログを表示する
@@ -61,19 +75,22 @@ export default Vue.extend({
         value.x === 11 &&
         this.isAlreadyTalkedSister
       ) {
-        console.log("5/11");
+        this.dialogAboutSite();
+        this.whichTreasure = "aboutSite";
       } else if (
         value.y === 5 &&
         value.x === 13 &&
         this.isAlreadyTalkedSister
       ) {
-        console.log("5/13");
+        this.dialogAboutMe();
+        this.whichTreasure = "aboutMe";
       } else if (
         value.y === 5 &&
         value.x === 15 &&
         this.isAlreadyTalkedSister
       ) {
-        console.log("5/16");
+        this.dialogContact();
+        this.whichTreasure = "contact";
       }
     }
   },
@@ -161,7 +178,7 @@ export default Vue.extend({
         { name: "宝の巻物", id: "4", count: 0 }
       ]);
       this.resetDialogOption();
-      const getKey = "シスター「勇者よ、よくここまで頑張りましたね。」";
+      const getKey = "シスター「勇者さん、よくここまで頑張りましたね。」";
       let count = 0;
       this.isAlreadyTalkedSister.key = true;
       this.setMoveRestriction();
@@ -188,6 +205,48 @@ export default Vue.extend({
         }
       }, 50);
     },
+    // About This Siteへ遷移する際のダイアログ
+    dialogAboutSite(): void {
+      this.resetDialogOption();
+      const message = "About This Site　ページへ移動しますか？";
+      let count = 0;
+      const interval = setInterval(() => {
+        count++;
+        this.textData = message.substring(0, count);
+        if (count === message.length) {
+          this.resetMoveRestriction();
+          clearInterval(interval);
+        }
+      }, 50);
+    },
+    // About Meへ遷移する際のダイアログ
+    dialogAboutMe(): void {
+      this.resetDialogOption();
+      const message = "About Me ページへ移動しますか？";
+      let count = 0;
+      const interval = setInterval(() => {
+        count++;
+        this.textData = message.substring(0, count);
+        if (count === message.length) {
+          this.resetMoveRestriction();
+          clearInterval(interval);
+        }
+      }, 50);
+    },
+    // Contactへ遷移する際のダイアログ
+    dialogContact(): void {
+      this.resetDialogOption();
+      const message = "コンタクトページ へ移動しますか？";
+      let count = 0;
+      const interval = setInterval(() => {
+        count++;
+        this.textData = message.substring(0, count);
+        if (count === message.length) {
+          this.resetMoveRestriction();
+          clearInterval(interval);
+        }
+      }, 50);
+    },
     // 会話ダイアログの表示が完了するまで移動制限をオンにする
     setMoveRestriction(): void {
       this.$emit("setMoveRestriction");
@@ -199,6 +258,7 @@ export default Vue.extend({
     resetDialogOption(): void {
       this.textDataSecoundLine = "";
       this.textData = "";
+      this.selectButtonIsVisible = "";
     }
   }
 });
@@ -208,12 +268,18 @@ export default Vue.extend({
 @import url(https://fonts.googleapis.com/css?family=M+PLUS+1p);
 
 .main-dialog {
-  width: 1200px;
+  width: 1000px;
   height: 100px;
   padding-left: 150px;
-  font-size: 30px;
+  font-size: 25px;
   background-color: #17184b;
   color: #fff;
   font-family: "M PLUS 1p";
+  &-sub {
+    display: flex;
+  }
+  &-wrapper {
+    display: flex;
+  }
 }
 </style>
