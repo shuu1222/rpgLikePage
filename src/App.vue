@@ -1,6 +1,6 @@
 <template>
   <v-app>
-    <v-main>
+    <v-main class="base-app">
       <app-main-panel />
     </v-main>
   </v-app>
@@ -22,3 +22,9 @@ export default Vue.extend({
   })
 });
 </script>
+
+<style lang="scss" scoped>
+.base-app {
+  background-color: #474751;
+}
+</style>

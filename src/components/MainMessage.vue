@@ -7,7 +7,11 @@
         {{ textDataSecoundLine }}
       </div>
     </div>
-    <app-select-button></app-select-button>
+    <app-select-button
+      :selectButtonIsVisible="selectButtonIsVisible"
+      :whichTreasure="whichTreasure"
+      @onClickNoButton="onClickNoButton()"
+    ></app-select-button>
   </v-container>
 </template>
 <script lang="ts">
@@ -38,7 +42,8 @@ export default Vue.extend({
     isAlreadyTalkedMaid: { key: false },
     isAlreadyTalkedSister: { key: false },
     whichTreasure: "",
-    selectButtonIsVisible: false
+    selectButtonIsVisible: false,
+    onClickNoText: ""
   }),
   computed: {
     // プレイヤーの位置情報をオブジェクトで返す
@@ -49,7 +54,6 @@ export default Vue.extend({
   watch: {
     // プレイヤーの位置情報を監視し、位置に対応したな処理を実行する
     positionInfo(value): void {
-      console.log(value);
       // 王様に初めて話しかけた場合
       if (value.y === 9 && value.x === 16 && !this.isAlreadyTalked.key) {
         this.kingGiveKeys();
@@ -73,21 +77,23 @@ export default Vue.extend({
       } else if (
         value.y === 5 &&
         value.x === 11 &&
-        this.isAlreadyTalkedSister
+        this.isAlreadyTalkedSister.key
       ) {
         this.dialogAboutSite();
         this.whichTreasure = "aboutSite";
+        // about meの遷移確認ダイアログを表示する
       } else if (
         value.y === 5 &&
         value.x === 13 &&
-        this.isAlreadyTalkedSister
+        this.isAlreadyTalkedSister.key
       ) {
         this.dialogAboutMe();
         this.whichTreasure = "aboutMe";
+        // contactの遷移確認ダイアログを表示する
       } else if (
         value.y === 5 &&
         value.x === 15 &&
-        this.isAlreadyTalkedSister
+        this.isAlreadyTalkedSister.key
       ) {
         this.dialogContact();
         this.whichTreasure = "contact";
@@ -207,6 +213,7 @@ export default Vue.extend({
     },
     // About This Siteへ遷移する際のダイアログ
     dialogAboutSite(): void {
+      this.setMoveRestriction();
       this.resetDialogOption();
       const message = "About This Site　ページへ移動しますか？";
       let count = 0;
@@ -215,12 +222,15 @@ export default Vue.extend({
         this.textData = message.substring(0, count);
         if (count === message.length) {
           this.resetMoveRestriction();
+          this.onClickNoText = "About This Site　ページ";
+          this.selectButtonIsVisible = true;
           clearInterval(interval);
         }
       }, 50);
     },
     // About Meへ遷移する際のダイアログ
     dialogAboutMe(): void {
+      this.setMoveRestriction();
       this.resetDialogOption();
       const message = "About Me ページへ移動しますか？";
       let count = 0;
@@ -229,14 +239,34 @@ export default Vue.extend({
         this.textData = message.substring(0, count);
         if (count === message.length) {
           this.resetMoveRestriction();
+          this.onClickNoText = "About Me ページ";
+          this.selectButtonIsVisible = true;
           clearInterval(interval);
         }
       }, 50);
     },
     // Contactへ遷移する際のダイアログ
     dialogContact(): void {
+      this.setMoveRestriction();
       this.resetDialogOption();
       const message = "コンタクトページ へ移動しますか？";
+      let count = 0;
+      const interval = setInterval(() => {
+        count++;
+        this.textData = message.substring(0, count);
+        if (count === message.length) {
+          this.resetMoveRestriction();
+          this.onClickNoText = "コンタクトページ";
+          this.selectButtonIsVisible = true;
+          clearInterval(interval);
+        }
+      }, 50);
+    },
+    // 鍵をしまう
+    onClickNoButton(): void {
+      this.setMoveRestriction();
+      this.resetDialogOption();
+      const message = "勇者は" + this.onClickNoText + "の鍵をしまった";
       let count = 0;
       const interval = setInterval(() => {
         count++;
@@ -251,6 +281,7 @@ export default Vue.extend({
     setMoveRestriction(): void {
       this.$emit("setMoveRestriction");
     },
+    // 移動制限をオフにする
     resetMoveRestriction(): void {
       this.$emit("resetMoveRestriction");
     },
@@ -258,7 +289,8 @@ export default Vue.extend({
     resetDialogOption(): void {
       this.textDataSecoundLine = "";
       this.textData = "";
-      this.selectButtonIsVisible = "";
+      this.selectButtonIsVisible = false;
+      this.whichTreasure = "";
     }
   }
 });
@@ -272,7 +304,7 @@ export default Vue.extend({
   height: 100px;
   padding-left: 150px;
   font-size: 25px;
-  background-color: #17184b;
+  background-color: #333333;
   color: #fff;
   font-family: "M PLUS 1p";
   &-sub {

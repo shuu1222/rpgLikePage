@@ -46,7 +46,7 @@ export default Vue.extend({
   min-width: 150px;
   height: 500px;
   font-size: 14px;
-  background-color: #17184b;
+  background-color: #333333;
   color: #fff;
   font-family: "M PLUS 1p";
   padding-top: 25px;
